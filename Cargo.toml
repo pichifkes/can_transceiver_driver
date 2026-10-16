@@ -1,0 +1,11 @@
+[package]
+name = "can_driver"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cortex-m = "0.7.9"
+embedded-hal = "1.0.0"
+panic-halt = "1.0.0"
+pio = "0.4.0"
+rp235x-hal = { version = "0.4.0", features = ["rt", "critical-section-impl"] }
