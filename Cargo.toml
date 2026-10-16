@@ -7,5 +7,5 @@ edition = "2024"
 cortex-m = "0.7.9"
 embedded-hal = "1.0.0"
 panic-halt = "1.0.0"
-pio = "0.4.0"
+pio = "0.3.0"
 rp235x-hal = { version = "0.4.0", features = ["rt", "critical-section-impl"] }
