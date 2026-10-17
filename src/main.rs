@@ -1,11 +1,8 @@
 #![no_std]
 #![no_main]
 
-use cortex_m::prelude::_embedded_hal_blocking_delay_DelayMs;
-use embedded_hal::digital::OutputPin;
 // The boot label. The chip won't start your program without it.
 use panic_halt as _;
-use pio::Program;
 use rp235x_hal::{self as hal, pio::PIOExt};
 
 #[used]
@@ -38,15 +35,30 @@ fn main() -> ! {
         &mut pac.RESETS,
     );
 
-    let program = pio::pio_asm!("set pindirs, 1", "set pins, 1",);
+    let program = pio::pio_asm!(
+        "set pindirs, 1",
+        ".wrap_target",
+        "set pins, 1",
+        "set x, 31",
+        "on_loop:",
+        "jmp x-- on_loop [31]",
+        "set pins, 0",
+        "set x, 31",
+        "off_loop:",
+        "jmp x-- off_loop [31]",
+        ".wrap",
+    );
     //let mut led = pins.gpio25.into_push_pull_output();
     let _led = pins.gpio25.into_function::<hal::gpio::FunctionPio0>();
     let (mut pio, sm0, _, _, _) = pac.PIO0.split(&mut pac.RESETS);
     let installed = pio.install(&program.program).unwrap();
-    let return_val = hal::pio::PIOBuilder::from_installed_program(installed)
+    let (sm, _rx, _tx) = hal::pio::PIOBuilder::from_installed_program(installed)
         .set_pins(25, 1)
+        .clock_divisor_fixed_point(65535, 0)
         .build(sm0);
 
-    //led.set_high();
+    let _sm = sm.start();
+
+    // led.set_high();
     loop {}
 }
